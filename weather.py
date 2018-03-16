@@ -60,29 +60,217 @@ def seaData(html):
     '西风':'west wind','西南风':'southwest wind','南风':'south wind','东南风':'southeast wind'}
     windList=windDict.keys()
     html = BeautifulSoup(html, "html.parser").body
-    html = html.find(text="山东海洋天气预报").parent.parent.parent.parent.parent.find(text='海洋天气预报：').parent.parent.parent
-    text=html.get_text()
-    p1=r"[。|\n][^。]*?渤海[^。]*?\d级[^。]*?。"
-    pattern1=re.compile(p1)
-    text=pattern1.findall(text)
-    if len(text)==3:
-        for i in range(len(text)):
-            windSer=1
-            for wind in windList:
-                if wind in text[i]:
-                    pass
+    html = html.find(text="海洋天气预报：").parent.parent.parent
+    allNews=html.get_text()
+
+    windData = [i.text for i in html.find_all('font') if '级' in i.text]
+    #如果风力数据的条数是3条，那么正好是3天的数据
+    if len(windData)!=3:
+        return allNews
+    else:
+        for dateSer in range(3):
+            tempD=['','wind grade ']
+            #print('11111',windData,dateSer)
+            p1=r"渤海.*\d级"
+            pattern1=re.compile(p1)
+            text=pattern1.findall(windData[dateSer])
+            #print('11111',windData,dateSer,text)
+            text=text[0]
+            needText=''
+            for area in text.split('级'):
+                if needText == '':
+                    needText+=area
+                else:
+                    needText+='级'
+                    if '渤海海峡' in area or '黄海' in area:
+                        break
+                    else:
+                        needText+=area
+            #看是否里面有阵风，如果有阵风分为1个阵风和2个阵风
+            if '阵风' in needText:
+                if len(needText.split('阵风'))==2:
+                    gustCount = needText.index('阵风')
+                    gustText=needText[max(0,gustCount-7):min(gustCount+7,len(needText))]
+                    p1="\d.*?阵风.*?级"
+                    #print('123',gustText)
+                    pattern1=re.compile(p1)
+                    gustData=pattern1.findall(gustText)[0]
+                    tempD[0]=gustData
+                    firstWind = gustData.split('阵风')[0]
+                    secondWind = gustData.split('阵风')[1]
+                    p1="\d{1,2}"
+                    pattern1=re.compile(p1)
+                    tempWindData=pattern1.findall(firstWind)
+                    if len(tempWindData)==1:
+                        tempD[1]+=tempWindData[0]
+                    else:
+                        tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+                    p1="\d{1,2}"
+                    pattern1=re.compile(p1)
+                    tempWindData=pattern1.findall(secondWind)
+                    tempD[1]+=' gust '
+                    if len(tempWindData)==1:
+                        tempD[1]+=tempWindData[0]
+                    else:
+                        tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+                    p1="\d.*?级"
+                    pattern1=re.compile(p1)
+                    #print('111111111111111111',needText[min(gustCount+7,len(needText)):len(needText)])
+                    gustData=pattern1.findall(needText[min(gustCount+7,len(needText)):len(needText)])
+                    #print('22222222222',gustData)
+                    if len(gustData)>0:
+                        tempD[0]+='转'+gustData[0]
+                        p1="\d{1,2}"
+                        pattern1=re.compile(p1)
+                        tempWindData=pattern1.findall(gustData[0])
+                        tempD[1]+=' to '
+                        if len(tempWindData)==1:
+                            tempD[1]+=tempWindData[0]
+                        else:
+                            tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+
+                if len(needText.split('阵风'))==3:
+                    #处理第一个阵风
+                    gustCount = needText.index('阵风')
+                    gustText=needText[max(0,gustCount-7):min(gustCount+7,len(needText))]
+                    p1="\d.*?阵风.*?级"
+                    pattern1=re.compile(p1)
+                    gustData=pattern1.findall(gustText)[0]
+                    tempD[0]=gustData
+                    firstWind = gustData.split('阵风')[0]
+                    secondWind = gustData.split('阵风')[1]
+                    p1="\d{1,2}"
+                    pattern1=re.compile(p1)
+                    tempWindData=pattern1.findall(firstWind)
+                    if len(tempWindData)==1:
+                        tempD[1]+=tempWindData[0]
+                    else:
+                        tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+                    p1="\d{1,2}"
+                    pattern1=re.compile(p1)
+                    tempWindData=pattern1.findall(secondWind)
+                    tempD[1]+=' gust '
+                    if len(tempWindData)==1:
+                        tempD[1]+=tempWindData[0]
+                    else:
+                        tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+                    tempD[0]+='转'
+                    tempD[1]+=' to '
+                    #处理第二个阵风
+                    gustCount = needText.index('阵风')
+                    secondGustNeedText=needText[gustCount+7:]
+                    gustCount = secondGustNeedText.index('阵风')
+                    p1="\d.*?阵风.*?级"
+                    pattern1=re.compile(p1)
+                    gustData=pattern1.findall(secondGustNeedText)[0]
+                    tempD[0]+=gustData
+                    firstWind = gustData.split('阵风')[0]
+                    secondWind = gustData.split('阵风')[1]
+                    p1="\d{1,2}"
+                    pattern1=re.compile(p1)
+                    tempWindData=pattern1.findall(firstWind)
+                    if len(tempWindData)==1:
+                        tempD[1]+=tempWindData[0]
+                    else:
+                        tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+                    p1="\d{1,2}"
+                    pattern1=re.compile(p1)
+                    tempWindData=pattern1.findall(secondWind)
+                    tempD[1]+=' gust '
+                    if len(tempWindData)==1:
+                        tempD[1]+=tempWindData[0]
+                    else:
+                        tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
+            elif '～' in needText:
+                p1="\d{1,2}"
+                pattern1=re.compile(p1)
+                tempWindData=pattern1.findall(needText)
+                if len(tempWindData)==2:
+                    p1="\d.*?级"
+                    pattern1=re.compile(p1)
+                    tempD[0]+=pattern1.findall(needText)[0]
+                    tempD[1]+=tempWindData[0]+'-'+tempWindData[1]
+                elif len(tempWindData)==3:
+                    secondSer=needText.index(tempWindData[1])
+                    if '～' in needText[secondser:]:
+                        tempD[0]+=tempWindData[0]+'级转'+tempWindData[1]+'-'+tempWindData[2]+'级'
+                        tempD[1]+=tempWindData[0]+' to '+tempWindData[1]+'-'+tempWindData[2]
+                    else:
+                        tempD[0]+=tempWindData[0]+'-'+tempWindData[1]+'级转'+tempWindData[2]+'级'
+                        tempD[1]+=tempWindData[0]+'-'+tempWindData[1]+' to '+tempWindData[2]
+                elif len(tempWindData)==4:
+                    tempD[0]+=tempWindData[0]+'-'+tempWindData[1]+' to '+tempWindData[2]+'-'+tempWindData[3]
+            seaW.append(tempD)
+        return seaW
 
 
-    #print(text)
-    return str(html.get_text)
 def seaWeather():
     html = get_content("http://www.sdqx.gov.cn/sdqx_hyyb.asp",encode="gbk")
     
     return seaData(html)
 
 
-def mailData(landData,seaData):
-    web='''
+def mailData(landData,seaData,t):
+    
+    weekList=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+    weekListC=['星期一','星期二','星期三','星期四','星期五','星期六','星期天']
+    weatherDict={"阴":"overcast",'晴':'clear','雷阵雨':'thunder shower',
+    '多云':'cloudy','多云':'cloudy','阵雨':'shower','小雨':'light rain','小到中雨':'light to moderate rain','雨夹雪':'sleet','小雪':'light snow','中雪':'moderate snow','大雪':'heavy snow'}
+    windDict={'东风':'east wind','东北风':'northeast wind','北风':'north wind','西北风':'northwest wind',
+    '西风':'west wind','西南风':'southwest wind','南风':'south wind','东南风':'southeast wind'}
+    firstSeaData=''
+    if type(seaData)==type('abc'):
+        firstSeaData=seaData
+        seaData=[['',''],['',''],['','']]
+
+    if t!= None:
+        nowDate=datetime.datetime.now()
+        t=t.replace('myDataSea',firstSeaData)
+        t=t.replace('myData0000',str(nowDate.date()))
+        t=t.replace('myData0100',str(nowDate.date()+datetime.timedelta(days=2)))
+        for ser,mydate in enumerate(['01','02','03']):
+            nowDate=datetime.datetime.now()+datetime.timedelta(days=ser)
+            t=t.replace('myData01'+mydate,str(nowDate.date()))
+            t=t.replace('myData02'+mydate,landData[ser][3])
+            t=t.replace('myData03'+mydate,weekListC[nowDate.weekday()])
+            t=t.replace('myData04'+mydate,landData[ser][2])
+            temp=landData[ser][6]
+            if landData[ser][6]!=landData[ser][7]:
+                temp+='转'+landData[ser][7]
+            t=t.replace('myData05'+mydate,temp)
+            temp=str(landData[ser][5])
+            t=t.replace('myData06'+mydate,temp)
+            t=t.replace('myData07'+mydate,seaData[ser][0]) 
+            t=t.replace('myData08'+mydate,weekList[nowDate.weekday()])
+            t=t.replace('myData09'+mydate,landData[ser][4])
+            temp=''
+            if '转' in landData[ser][2]:
+                for tempw in landData[ser][2].split('转'):
+                    temp+= weatherDict[tempw]+' to '
+                temp=temp[:-3]
+            else:
+                temp=weatherDict[landData[ser][2]]
+            t=t.replace('myData10'+mydate,temp)
+            temp=''
+            if landData[ser][6]!=landData[ser][7]:
+                temp += windDict[landData[ser][6]] + ' to ' + windDict[landData[ser][7]]
+            else:
+                temp=windDict[landData[ser][6]]
+            t=t.replace('myData11'+mydate,temp)
+            temp='wind grade '
+            if '转' in landData[ser][5]:
+                for tempw in landData[ser][5].split('转'):
+                    temp+= tempw.replace('级','') + ' to '
+                temp=temp[:-4]
+            else:
+                temp+=landData[ser][5].replace('级','')
+            t=t.replace('myData12'+mydate,temp)
+            t=t.replace('myData13'+mydate,seaData[ser][1])
+
+        out = open(str(datetime.datetime.now().date())+'.html','w')#,encoding='utf-8')
+        out.write(t)
+        out.close()
+web='''
     <html dir="ltr">
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
@@ -575,73 +763,12 @@ def mailData(landData,seaData):
     </body>
     </html>
     '''
-    weekList=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-    weekListC=['星期一','星期二','星期三','星期四','星期五','星期六','星期天']
-    weatherDict={"阴":"overcast",'晴':'clear','雷阵雨':'thunder shower',
-    '多云':'cloudy','多云':'cloudy','阵雨':'shower','小雨':'light rain','小到中雨':'light to moderate rain','雨夹雪':'sleet','小雪':'light snow','中雪':'moderate snow','大雪':'heavy snow'}
-    windDict={'东风':'east wind','东北风':'northeast wind','北风':'north wind','西北风':'northwest wind',
-    '西风':'west wind','西南风':'southwest wind','南风':'south wind','东南风':'southeast wind'}
-    t=web
-    if t!= None:
-        nowDate=datetime.datetime.now()
-        t=t.replace('myDataSea',seaData)
-        t=t.replace('myData0000',str(nowDate.date()))
-        t=t.replace('myData0100',str(nowDate.date()+datetime.timedelta(days=2)))
-        for ser,mydate in enumerate(['01','02','03']):
-            nowDate=datetime.datetime.now()+datetime.timedelta(days=ser)
-            t=t.replace('myData01'+mydate,str(nowDate.date()))
-            t=t.replace('myData02'+mydate,landData[ser][3])
-            t=t.replace('myData03'+mydate,weekListC[nowDate.weekday()])
-            t=t.replace('myData04'+mydate,landData[ser][2])
-            temp=landData[ser][6]
-            if landData[ser][6]!=landData[ser][7]:
-                temp+='转'+landData[ser][7]
-            t=t.replace('myData05'+mydate,temp)
-            temp=str(landData[ser][5])
-            t=t.replace('myData06'+mydate,temp)
-            ############
-            
-            t=t.replace('myData08'+mydate,weekList[nowDate.weekday()])
-            t=t.replace('myData09'+mydate,landData[ser][4])
-            ################
-            temp=''
-            if '转' in landData[ser][2]:
-                for tempw in landData[ser][2].split('转'):
-                    temp+= weatherDict[tempw]+' to '
-                temp=temp[:-3]
-            else:
-                temp=weatherDict[landData[ser][2]]
-            t=t.replace('myData10'+mydate,temp)
-
-
-            ################
-            temp=''
-            if landData[ser][6]!=landData[ser][7]:
-                temp += windDict[landData[ser][6]] + ' to ' + windDict[landData[ser][7]]
-            else:
-                temp=windDict[landData[ser][6]]
-            t=t.replace('myData11'+mydate,temp)
-            #
-            #
-            temp='wind grade '
-            if '转' in landData[ser][5]:
-                for tempw in landData[ser][5].split('转'):
-                    temp+= tempw.replace('级','') + ' to '
-                temp=temp[:-4]
-            else:
-                temp+=landData[ser][5].replace('级','')
-            t=t.replace('myData12'+mydate,temp)
-
-        out = open(str(datetime.datetime.now().date())+'.html','w')#,encoding='utf-8')
-        out.write(t)
-        out.close()
-    
-
 
  
 if __name__ == '__main__':
     landData = landWeather()[:3]
     seaData = seaWeather()
+    #print(seaData)
     #landData.append(seaData)
     #print(seaData)
-    mailData(landData,seaData)
+    mailData(landData,seaData,web)
