@@ -267,6 +267,33 @@ def mailData(landData,seaData,t):
             t=t.replace('myData12'+mydate,temp)
             t=t.replace('myData13'+mydate,seaData[ser][1])
 
+             #改变背景颜色
+            if int(landData[ser][3])>32 or int(landData[ser][3])<-5:
+                tempColor='yellow'
+            else:
+                tempColor='transparent'
+            t=t.replace('backgroundColor01'+mydate,tempColor)
+            if int(landData[ser][4])>32 or int(landData[ser][4])<-5:
+                tempColor='yellow'
+            else:
+                tempColor='transparent'
+            t=t.replace('backgroundColor02'+mydate,tempColor)
+            if ('9' in str(landData[ser][5])) or ('10' in str(landData[ser][5])) or ('11' in str(landData[ser][5])) or ('12' in str(landData[ser][5])):
+                tempColor='red'
+            elif '8' in str(landData[ser][5]):
+                tempColor='yellow'
+            else:
+                tempColor='transparent'
+            t=t.replace('backgroundColor03'+mydate,tempColor)
+            #print('9' in str(seaData[ser][0]),'backgroundColor04'+mydate)
+            if ('9' in str(seaData[ser][0])) or ('10' in str(seaData[ser][0])) or ('11' in str(seaData[ser][0])) or ('12' in str(seaData[ser][0])):
+                tempColor='red'
+            elif '8' in str(seaData[ser][0]):
+                tempColor='yellow'
+            else:
+                tempColor='transparent'
+            t=t.replace('backgroundColor04'+mydate,tempColor)
+
         out = open(str(datetime.datetime.now().date())+'.html','w')#,encoding='utf-8')
         out.write(t)
         out.close()
@@ -397,7 +424,7 @@ web='''
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 82pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="109">
     <p align="center"><font class="font11" size="2" face="宋体">高温</font></p>
     </td>
-    <td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: windowtext 1pt solid; BACKGROUND-COLOR: transparent; WIDTH: 46pt; BORDER-TOP: windowtext; BORDER-RIGHT: windowtext 1pt solid" class="xl99" rowspan="2" width="61">
+    <td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: windowtext 1pt solid; BACKGROUND-COLOR: backgroundColor0101; WIDTH: 46pt; BORDER-TOP: windowtext; BORDER-RIGHT: windowtext 1pt solid" class="xl99" rowspan="2" width="61">
     <p align="center"><font size="2"><font face="Times New Roman">myData0201</font><font class="font11" face="宋体">℃</font></font></p>
     </td>
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="181">
@@ -406,10 +433,10 @@ web='''
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: white; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl72" width="181">
     <p align="center"><font size="2" face="Times New Roman">　</font></p>
     </td>
-    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="181">
+    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: backgroundColor0301; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="181">
     <p align="center"><font size="2" face="Times New Roman">　</font></p>
     </td>
-    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="237">
+    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: backgroundColor0401; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="237">
     <p align="center"><font size="2" face="Times New Roman">　</font></p>
     </td>
     </tr>
@@ -429,10 +456,10 @@ web='''
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl76" width="181">
     <p align="center"><font size="2" face="宋体">myData0501</font></p>
     </td>
-    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl86" width="181">
+    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: backgroundColor0301; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl86" width="181">
     <p align="center"><font size="2"><font face="Times New Roman">myData0601</font></font></p>
     </td>
-    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: transparent; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl73" width="237">
+    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: backgroundColor0401; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl73" width="237">
     <p align="center"><font size="2"><font face="Times New Roman">myData0701</font></font></p>
     </td>
     </tr>
@@ -446,7 +473,7 @@ web='''
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: white; WIDTH: 82pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl72" width="109">
     <p align="center"><font class="font11" size="2" face="宋体">低温</font></p>
     </td>
-    <td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: windowtext 1pt solid; BACKGROUND-COLOR: transparent; WIDTH: 46pt; BORDER-TOP: windowtext; BORDER-RIGHT: windowtext 1pt solid" class="xl99" rowspan="2" width="61">
+    <td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: windowtext 1pt solid; BACKGROUND-COLOR: backgroundColor0201; WIDTH: 46pt; BORDER-TOP: windowtext; BORDER-RIGHT: windowtext 1pt solid" class="xl99" rowspan="2" width="61">
     <p align="center"><font size="2"><font face="Times New Roman">myData0901</font><font class="font11" face="宋体">℃</font></font></p>
     </td>
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="181">
@@ -455,10 +482,10 @@ web='''
     <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl70" width="181">
     <p align="center"><font face="Times New Roman"><font size="2">myData1101</font></font></font></p>
     </td>
-    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl73" width="181">
+    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: backgroundColor0301; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl73" width="181">
     <p align="center"><font size="2" face="Times New Roman">myData1201</font></p>
     </td>
-    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: transparent; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl73" width="237">
+    <td style="BORDER-BOTTOM: #f0f0f0; BORDER-LEFT: windowtext; BACKGROUND-COLOR: backgroundColor0401; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl73" width="237">
     <p align="center"><font size="2" face="Times New Roman">myData1301</font></p>
     </td>
     </tr>
@@ -478,10 +505,10 @@ web='''
     <td style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl69" width="181">
     <p align="center"><font size="2" face="Times New Roman">　</font></p>
     </td>
-    <td style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl69" width="181">
+    <td style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: backgroundColor0301; WIDTH: 136pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl69" width="181">
     <p align="center"><font size="2" face="Times New Roman">　</font></p>
     </td>
-    <td style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: transparent; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl69" width="237">
+    <td style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #f0f0f0; BACKGROUND-COLOR: backgroundColor0401; WIDTH: 178pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: windowtext 1pt solid" class="xl69" width="237">
     <p align="center"><font size="2" face="Times New Roman">　</font></p>
     </td>
     </tr>
