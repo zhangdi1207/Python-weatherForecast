@@ -12,15 +12,9 @@ import poplib
 import string,sys,os
 import pdfkit
  
-def get_content(url, data=None,myEncode='utf-8'):
-    try:
-        rep = requests.get(url, timeout=10)
-        rep.encoding = myEncode
-    except:
-        if url=="http://www.sdqx.gov.cn/sdqx_hyyb.asp":
-            rep = requests.get('http://www.weather.com.cn/shandong/qxsj/jinhai.shtml', timeout=10)
-            rep.encoding = 'utf-8'
-
+def get_content(url, data=None,encode='utf-8'):
+    rep = requests.get(url, timeout=60)
+    rep.encoding = encode
     return rep.text
  
  
@@ -70,6 +64,7 @@ def seaData(html):
     windDict={'东风':'east wind','东北风':'northeast wind','北风':'north wind','西北风':'northwest wind',
     '西风':'west wind','西南风':'southwest wind','南风':'south wind','东南风':'southeast wind'}
     windList=windDict.keys()
+<<<<<<< HEAD
 
     
     html = BeautifulSoup(html, "html.parser")
@@ -81,9 +76,13 @@ def seaData(html):
     else:
         html = html.find(text="海洋天气预报：").parent.parent.parent
         windData = [i.text for i in html.find_all('font') if '级' in i.text]
+=======
+    html = BeautifulSoup(html, "html.parser").body
+    html = html.find(text="海洋天气预报：").parent.parent.parent
+>>>>>>> parent of a05b54d... change seaweather web
     allNews=html.get_text()
 
-    
+    windData = [i.text for i in html.find_all('font') if '级' in i.text]
     #如果风力数据的条数是3条，那么正好是3天的数据
     if len(windData)!=3:
         return allNews
@@ -106,11 +105,15 @@ def seaData(html):
                         break
                     else:
                         needText+=area
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of a05b54d... change seaweather web
             #看是否里面有阵风，如果有阵风分为1个阵风和2个阵风
             if '阵风' in needText:
                 if len(needText.split('阵风'))==2:
                     gustCount = needText.index('阵风')
+<<<<<<< HEAD
                     gustText=needText[0:min(gustCount+7,len(needText))]
                     
 
@@ -121,6 +124,13 @@ def seaData(html):
                             gustData+='阵风'
                         pattern1=re.compile(p1)
                         gustData+=pattern1.findall(needSplit)[0]
+=======
+                    gustText=needText[max(0,gustCount-7):min(gustCount+7,len(needText))]
+                    p1="\d.*?阵风.*?级"
+                    #print('123',gustText)
+                    pattern1=re.compile(p1)
+                    gustData=pattern1.findall(gustText)[0]
+>>>>>>> parent of a05b54d... change seaweather web
                     tempD[0]=gustData
                     firstWind = gustData.split('阵风')[0]
                     secondWind = gustData.split('阵风')[1]
@@ -231,7 +241,7 @@ def seaData(html):
 
 
 def seaWeather():
-    html = get_content("http://www.sdqx.gov.cn/sdqx_hyyb.asp",myEncode="gbk")
+    html = get_content("http://www.sdqx.gov.cn/sdqx_hyyb.asp",encode="gbk")
     
     return seaData(html)
 
@@ -294,12 +304,12 @@ def mailData(landData,seaData,t):
             t=t.replace('myData13'+mydate,seaData[ser][1])
 
              #改变背景颜色
-            if int(landData[ser][3])>32 or int(landData[ser][3])<-4:
+            if int(landData[ser][3])>32 or int(landData[ser][3])<-5:
                 tempColor='yellow'
             else:
                 tempColor='transparent'
             t=t.replace('backgroundColor01'+mydate,tempColor)
-            if int(landData[ser][4])>32 or int(landData[ser][4])<-4:
+            if int(landData[ser][4])>32 or int(landData[ser][4])<-5:
                 tempColor='yellow'
             else:
                 tempColor='transparent'
