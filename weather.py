@@ -337,7 +337,11 @@ def getMailData():
     </head>
     <body ocsi="x">
     <div></div>
+    <div dir="ltr"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">各位好<span lang="EN-US">,</span></span><span style="FONT-FAMILY: 'Tahoma','sans-serif'; COLOR: gray; FONT-SIZE: 10pt" lang="EN-US">
+    </span></div>
     <div>
+    <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">以下为近三天天气预报，请各部门参考。</span></p>
+    <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">具体预报如下：</p>
     <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">myDataSea</p>
     <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal">
     <table style="WIDTH: 842pt; BORDER-COLLAPSE: collapse" border="0" cellspacing="0" cellpadding="0" width="1120">
@@ -807,6 +811,10 @@ def getMailData():
     </p>
     </span></div>
     <br>
+    <hr>
+    <font face="Arial" color="Gray" size="2">CONFIDENTIALITY NOTICE<br>
+    Information in this message is confidential and may be privileged. It is intended solely for the person to whom it is addressed. If you are not intended recipient, please notify the sender and delete the message and any other record of it from your system immediately.<br>
+    </font>
     </body>
     </html>
     '''
@@ -818,13 +826,13 @@ def getMailData():
     return mailData(landData,seaData,web)
 
 def sendMail(content,date):
-    send=['zhangdi1207@aliyun.com','buaa34071119','smtp.aliyun.com']
+    send=['LCRO_WeatherForecast@aliyun.com','buaa34071119','smtp.aliyun.com']
     #send=['416279695@qq.com','buaa34071119','smtp.exmail.qq.com']
-    receivers=['jie.zhao@cimc-raffles.com','di.zhang@cimc-raffles.com']
+    receivers=['hse.lcro@cimc-raffles.com']
     message = MIMEText(content, 'html', 'utf-8')
-    message['From'] = Header("天气监测邮箱", 'utf-8')
-    message['To'] =  Header("HSE邮箱", 'utf-8')
-    subject = date
+    message['From'] = Header(send[0], 'utf-8')
+    message['To'] =  Header(str(receivers), 'utf-8')
+    subject = date+'~'+str(datetime.datetime.now().date()+datetime.timedelta(days=2))+'天气预报 Weather Forecast'
     message['Subject'] = Header(subject, 'utf-8')
 
 
@@ -836,10 +844,12 @@ def sendMail(content,date):
  
 if __name__ == '__main__':
     content,date=getMailData()
-    #sendMail(content,date)
+    sendMail(content,date)
+    '''
     try:
         path_wk = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe' #安装位置
         config = pdfkit.configuration(wkhtmltopdf = path_wk)
         pdfkit.from_file(date+'.html', date+'.pdf', configuration=config)
     except:
         pass
+        '''
