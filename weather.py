@@ -820,10 +820,10 @@ def getMailData():
 def sendMail(content,date):
     send=['zhangdi1207@aliyun.com','buaa34071119','smtp.aliyun.com']
     #send=['416279695@qq.com','buaa34071119','smtp.exmail.qq.com']
-    receivers=['jie.zhao@cimc-raffles.com','di.zhang@cimc-raffles.com']
+    receivers=['jie.zhao@cimc-raffles.com','di.zhang@cimc-raffles.com','hse.lcro@cimc-raffles.com']
     message = MIMEText(content, 'html', 'utf-8')
-    message['From'] = Header("天气监测邮箱", 'utf-8')
-    message['To'] =  Header("HSE邮箱", 'utf-8')
+    message['From'] = Header("zhangdi1207@aliyun.com", 'utf-8')
+    message['To'] =  Header(str(receivers), 'utf-8')
     subject = date
     message['Subject'] = Header(subject, 'utf-8')
 
@@ -836,10 +836,12 @@ def sendMail(content,date):
  
 if __name__ == '__main__':
     content,date=getMailData()
-    #sendMail(content,date)
+    sendMail(content,date)
+    '''
     try:
         path_wk = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe' #安装位置
         config = pdfkit.configuration(wkhtmltopdf = path_wk)
         pdfkit.from_file(date+'.html', date+'.pdf', configuration=config)
     except:
         pass
+        '''
