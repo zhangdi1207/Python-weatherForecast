@@ -4,7 +4,13 @@ import requests
 from bs4 import BeautifulSoup
 import datetime
 import re
- 
+import smtplib
+import email.mime.multipart
+from email.header import Header
+from email.mime.text import MIMEText
+import poplib
+import string,sys,os
+import pdfkit
  
 def get_content(url, data=None,myEncode='utf-8'):
     try:
@@ -43,7 +49,6 @@ def get_data(htmltext, city):
             line.append(j.attrs['title'])
 
         content.append(line)
-    #print(content)
     return content
  
  
@@ -65,14 +70,14 @@ def seaData(html):
     windDict={'东风':'east wind','东北风':'northeast wind','北风':'north wind','西北风':'northwest wind',
     '西风':'west wind','西南风':'southwest wind','南风':'south wind','东南风':'southeast wind'}
     windList=windDict.keys()
-    #print(html)
+
     
     html = BeautifulSoup(html, "html.parser")
-    #print(html)
+
     if html.find(text="中国天气首页") != None:
         html=html.find('pre')
         windData=[i for i in html.text.split('\r\n') if '级' in i]
-        #print(windData)
+
     else:
         html = html.find(text="海洋天气预报：").parent.parent.parent
         windData = [i.text for i in html.find_all('font') if '级' in i.text]
@@ -85,11 +90,11 @@ def seaData(html):
     else:
         for dateSer in range(3):
             tempD=['','wind grade ']
-            #print('11111',windData,dateSer)
+
             p1=r"渤海.*\d级"
             pattern1=re.compile(p1)
             text=pattern1.findall(windData[dateSer])
-            #print('11111',windData,dateSer,text)
+
             text=text[0]
             needText=''
             for area in text.split('级'):
@@ -101,14 +106,14 @@ def seaData(html):
                         break
                     else:
                         needText+=area
-            #print(needText)
+
             #看是否里面有阵风，如果有阵风分为1个阵风和2个阵风
             if '阵风' in needText:
                 if len(needText.split('阵风'))==2:
                     gustCount = needText.index('阵风')
                     gustText=needText[0:min(gustCount+7,len(needText))]
                     
-                    #print('123',needText,gustText)
+
                     gustData=''
                     for needSplit in needText.split('阵风'):
                         p1="\d～{0,1}.*?级"
@@ -136,9 +141,9 @@ def seaData(html):
                         tempD[1] +=tempWindData[0]+'-'+tempWindData[1]
                     p1="\d.*?级"
                     pattern1=re.compile(p1)
-                    #print('111111111111111111',needText[min(gustCount+7,len(needText)):len(needText)])
+
                     gustData=pattern1.findall(needText[min(gustCount+7,len(needText)):len(needText)])
-                    #print('22222222222',gustData)
+
                     if len(gustData)>0:
                         tempD[0]+='转'+gustData[0]
                         p1="\d{1,2}"
@@ -306,7 +311,7 @@ def mailData(landData,seaData,t):
             else:
                 tempColor='transparent'
             t=t.replace('backgroundColor03'+mydate,tempColor)
-            #print('9' in str(seaData[ser][0]),'backgroundColor04'+mydate)
+
             if ('9' in str(seaData[ser][0])) or ('10' in str(seaData[ser][0])) or ('11' in str(seaData[ser][0])) or ('12' in str(seaData[ser][0])):
                 tempColor='red'
             elif '8' in str(seaData[ser][0]):
@@ -314,11 +319,13 @@ def mailData(landData,seaData,t):
             else:
                 tempColor='transparent'
             t=t.replace('backgroundColor04'+mydate,tempColor)
-
-        out = open(str(datetime.datetime.now().date())+'.html','w')#,encoding='utf-8')
+        tempFileName=str(datetime.datetime.now().date())+'.html'
+        out = open(tempFileName,'w')#,encoding='utf-8')
         out.write(t)
         out.close()
-web='''
+        return t,str(datetime.datetime.now().date())
+def getMailData():
+    web='''
     <html dir="ltr">
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
@@ -330,11 +337,7 @@ web='''
     </head>
     <body ocsi="x">
     <div></div>
-    <div dir="ltr"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">各位好<span lang="EN-US">,</span></span><span style="FONT-FAMILY: 'Tahoma','sans-serif'; COLOR: gray; FONT-SIZE: 10pt" lang="EN-US">
-    </span></div>
     <div>
-    <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">以下为近三天天气预报，请各部门参考。</span></p>
-    <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">具体预报如下：</p>
     <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal"><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black"></span><span style="FONT-FAMILY: '微软雅黑','sans-serif'; COLOR: black">myDataSea</p>
     <p style="MARGIN: 0cm 0cm 0pt" dir="ltr" class="MsoNormal">
     <table style="WIDTH: 842pt; BORDER-COLLAPSE: collapse" border="0" cellspacing="0" cellpadding="0" width="1120">
@@ -804,19 +807,39 @@ web='''
     </p>
     </span></div>
     <br>
-    <hr>
-    <font face="Arial" color="Gray" size="2">CONFIDENTIALITY NOTICE<br>
-    Information in this message is confidential and may be privileged. It is intended solely for the person to whom it is addressed. If you are not intended recipient, please notify the sender and delete the message and any other record of it from your system immediately.<br>
-    </font>
     </body>
     </html>
     '''
+    landData = landWeather()[:3]
+    seaData = seaWeather()
+
+    #landData.append(seaData)
+
+    return mailData(landData,seaData,web)
+
+def sendMail(content,date):
+    send=['zhangdi1207@aliyun.com','buaa34071119','smtp.aliyun.com']
+    #send=['416279695@qq.com','buaa34071119','smtp.exmail.qq.com']
+    receivers=['jie.zhao@cimc-raffles.com','di.zhang@cimc-raffles.com']
+    message = MIMEText(content, 'html', 'utf-8')
+    message['From'] = Header("天气监测邮箱", 'utf-8')
+    message['To'] =  Header("HSE邮箱", 'utf-8')
+    subject = date
+    message['Subject'] = Header(subject, 'utf-8')
+
+
+    smtp=smtplib.SMTP()
+    smtp.connect(send[2],25)
+    smtp.login(send[0],send[1])
+    smtp.sendmail(send[0],receivers,message.as_string())
 
  
 if __name__ == '__main__':
-    landData = landWeather()[:3]
-    seaData = seaWeather()
-    #print(seaData)
-    #landData.append(seaData)
-    #print(seaData)
-    mailData(landData,seaData,web)
+    content,date=getMailData()
+    #sendMail(content,date)
+    try:
+        path_wk = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe' #安装位置
+        config = pdfkit.configuration(wkhtmltopdf = path_wk)
+        pdfkit.from_file(date+'.html', date+'.pdf', configuration=config)
+    except:
+        pass
