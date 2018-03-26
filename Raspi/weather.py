@@ -355,7 +355,7 @@ def mailData(landData,seaData,t):
                 tempColor='transparent'
             t=t.replace('backgroundColor04'+mydate,tempColor)
 
-        #'''
+        '''
         tempFileName=str(datetime.datetime.now().date())+'.html'
         out = open(tempFileName,'w')#,encoding='utf-8')
         out.write(t)
@@ -879,15 +879,14 @@ def sendMail(content,date):
     smtp.login(send[0],send[1])
     smtp.sendmail(send[0],receivers,message.as_string())
 
- 
-if __name__ == '__main__':
-    content,date=getMailData()
-    sendMail(content,date)
-    '''
-    try:
-        path_wk = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe' #安装位置
-        config = pdfkit.configuration(wkhtmltopdf = path_wk)
-        pdfkit.from_file(date+'.html', date+'.pdf', configuration=config)
-    except:
-        pass
-        '''
+def sendWeather():
+    while(1):
+        tempNow = datetime.datetime.now()
+        if (tempNow.hour==7) and (tempNow.minute>50):
+            content,date=getMailData()
+            sendMail(content,date)
+            time.sleep(600)
+
+
+sendWeather()
+#getMailData()
