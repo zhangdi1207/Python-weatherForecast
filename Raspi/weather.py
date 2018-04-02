@@ -10,18 +10,32 @@ from email.header import Header
 from email.mime.text import MIMEText
 import poplib
 import string,sys,os
+import urllib.request
 #import pdfkit
  
 def get_content(url, data=None,myEncode='utf-8'):
+    
     try:
-        rep = requests.get(url, timeout=10)
+        '''
+        rep = requests.get(url, timeout=60)
         rep.encoding = myEncode
+        print(rep.json())
+        '''
+        req=urllib.request.Request(url)
+        res=urllib.request.urlopen(req)
+        rep=res.read().decode("utf8")
+
     except:
         if url=="http://www.sdqx.gov.cn/sdqx_hyyb.asp":
+            url='http://www.weather.com.cn/shandong/qxsj/jinhai.shtml'
+            '''
             rep = requests.get('http://www.weather.com.cn/shandong/qxsj/jinhai.shtml', timeout=10)
             rep.encoding = 'utf-8'
-
-    return rep.text
+            '''
+            req=urllib.request.Request(url)
+            res=urllib.request.urlopen(req)
+            rep=res.read().decode("utf8")
+    return rep
  
  
 def get_data(htmltext, city):
@@ -106,7 +120,7 @@ def seaData(html):
                         break
                     else:
                         needText+=area
-            #print(needText)
+            #print('0000needText',needText)
 
             #看是否里面有阵风，如果有阵风分为1个阵风和2个阵风
             if '阵风' in needText:
@@ -114,10 +128,11 @@ def seaData(html):
                     gustCount = needText.index('阵风')
                     gustText=needText[0:min(gustCount+7,len(needText))]
                     
-                    #print(222,gustText)
+                    #print('222gustText',gustText)
 
                     gustData=''
                     for needSplit in needText.split('阵风'):
+                        #print('777,needSplit',needSplit)
                         p1="\d～{0,1}.*?级"
                         if gustData != '':
                             gustData+='阵风'
@@ -126,10 +141,10 @@ def seaData(html):
                         if len(tempNeedSplit)==1:
                             gustData+= tempNeedSplit[0]
                         else:
-                            gustData+=tempNeedSplit[0]+'转'+tempNeedSplit[1]
+                            gustData+=tempNeedSplit[0]#+'转'+tempNeedSplit[1]
                     tempD[0]=gustData
                     #print(4444,needSplit,pattern1.findall(needSplit))
-                    #print(666,gustData)
+                    #print('666gustData',gustData)
                     firstWind = gustData.split('阵风')[0]
                     secondWind = gustData.split('阵风')[1]
                     p1="\d{1,2}"
@@ -886,6 +901,7 @@ def sendWeather():
             content,date=getMailData()
             sendMail(content,date)
             time.sleep(600)
+            break
 
 
 sendWeather()
